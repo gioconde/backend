@@ -4,11 +4,17 @@ const jwt = require('jsonwebtoken');
 const express = require('express')
 const app = express()
 const port = 3000
-const users = []
-const usersTokens = [
-  { id: 0.42013506922686195, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MC40MjAxMzUwNjkyMjY4NjE5NSwidXNlcm5hbWUiOiJraWxsZXIiLCJpYXQiOjE2MTMyNjYwODd9.GcImF0K2x0-3L_w2erVnga5ZuzlZg5aasIJSjxTLJ4c' },
-  { id: 0.15816472906488266, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MC4xNTgxNjQ3MjkwNjQ4ODI2NiwidXNlcm5hbWUiOiJHaW9jb25kZSIsImlhdCI6MTYxMzI2NjI1M30.OCqcfW3ectg-9bezXmS1VYXxrQk3ecR4uv_3gzSoaxQ' },
+const users = [
+  { "id": 0.372598048211062, "username": "Gioconde", "password": "321" },
+  { "id": 0.42963005605214954, "username": "killer", "password": "111" },
+  {"id": 0.08133849221774536, "username": "Ira","password": "222"},
 ]
+const usersTokens = [
+  { "id": 0.372598048211062, "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MC4zNzI1OTgwNDgyMTEwNjIsInVzZXJuYW1lIjoiR2lvY29uZGUiLCJpYXQiOjE2MTMyNzA1Nzd9.kbPqep0eY3IV-c6lBX7cGJDPvZSkM8RewxKK5r4jpuI" },
+  { "id": 0.42963005605214954, "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MC40Mjk2MzAwNTYwNTIxNDk1NCwidXNlcm5hbWUiOiJraWxsZXIiLCJpYXQiOjE2MTMyNzI0Njh9.6rusgsbvUYme3oQKAWe2gUD9KxBGB_43tZB-JEohHk8" },
+  { "id": 0.08133849221774536, "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MC4wODEzMzg0OTIyMTc3NDUzNiwidXNlcm5hbWUiOiJJcmEiLCJpYXQiOjE2MTMyNzMxNTd9.19lq8gswkEPIxVehNvZOjYxDYUbQUSvVE6SCSpcwTL4" },
+]
+app.use(express.json())
 
 //verifica se usuário tem acesso para então seguir para a rota.
 let middlewareAccess = (req, res, next) => {
@@ -26,12 +32,12 @@ let middlewareAccess = (req, res, next) => {
     }
 
     const userTokenReq = { ...decoded }
-    const existsUserToken = usersTokens.map((userToken) => {
-      return userToken.id === userTokenReq.id && userToken.token === userTokenReq.token?true:false
+    const existsUserToken = usersTokens.find((userToken) => {
+      return userToken.id === userTokenReq.id && userToken.token === token
     })
-    
     console.log(existsUserToken)
-    if (existsUserToken.length > 0 && existsUserToken.id) {
+    //console.log(usersTokens);
+    if (existsUserToken) {
       req.user = userTokenReq
       return next()
     }
@@ -44,22 +50,19 @@ app.get('/', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
-  console.log(req.query)
-  const { username, password } = req.query
+  const { username, password } = req.body
   //necessita os 2 parâmetros para continuar
   if (!username || !password) return res.status(403).send("Necessita credenciais!")
-
-  //buscar no banco com os 2 parâmetros
-  const user = users.map((user) =>
-    user.username === username && user.passowrd === passowrd
-  );
-
+  const user = users.find((user) => {
+    return user.username === username && user.password === password
+   });
+   //console.log(user)
   //valida os parâmetros passados
-  if (user.length > 0) return res.status(401).send("Credenciais inválidas!")
+  if (!user) return res.status(401).send("Credenciais inválidas!")
 
   //gera o token de autenticação
   const token = jwt.sign({ id: user.id, username: user.username }, process.env.SECRET, {
-    //expiresIn: 10 //5 min
+    //expiresIn: 10 
   });
 
   usersTokens.push({ id: user.id, token })
@@ -69,12 +72,11 @@ app.post('/login', (req, res) => {
 app.post('/new', (req, res) => {
   const { username, password, confPassword } = req.query
   if (!username || !password || !confPassword) return res.send("Necessita 'username', 'password' e 'confPassword'")
-  //buscar user no DB
-
-  const userDB = users.map((user) => {
-    return user.username === username ? true : false
+  
+  const userDB = users.find((user) => {
+    return user.username === username
   });
-  if (userDB.length > 0) return res.send("user já existe")
+  if (userDB) return res.send("user já existe")
 
   if (password != confPassword) return res.send("'password' e 'confPassword' diferentes")
 
@@ -86,36 +88,31 @@ app.post('/new', (req, res) => {
   const token = jwt.sign({ id: user.id, username: user.username }, process.env.SECRET);
 
   usersTokens.push({ id, token })
-  res.send("User criado com sucesso!")
-  console.log({ ...user, token })
+  res.json({ status: "success", user: { ...user, token } })
 })
 
 
 app.post('/users/add', middlewareAccess, (req, res) => {
   const { username, password, confPassword } = req.query
   if (!username || !password || !confPassword) return res.send("Necessita 'username', 'password' e 'confPassword'")
-  //buscar user no DB
 
   const userDB = users.map((user) => {
-    return user.username === username ? true : false
-  });
+    return user.username === username
+  }).filter((exists) =>
+    exists
+  );
+  //console.log(userDB)
   if (userDB.length > 0) return res.send("user já existe")
 
   if (password != confPassword) return res.send("'password' e 'confPassword' diferentes")
 
-
-  users.push({ id: Date.getTime(), username, password })
-
-  console.log(users)
-  res.send("User adicionado com sucesso!")
+  const user = { id: Math.random(), username, password }
+  users.push(user)
+  res.json(user)
 })
 
 app.get('/users', middlewareAccess, (req, res) => {
-  res.json([
-    { id: 1, username: "gioconde", password: "123" },
-    { id: 2, username: "killer", password: "coder_" },
-    req.user
-  ])
+  res.json(users)
 })
 
 app.listen(port, () => {
