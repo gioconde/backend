@@ -1,6 +1,8 @@
 const UserController = require('../api/controllers/UserController')
 var express = require('express');
 
+const jwt = require('jsonwebtoken'); 
+
 var router = express.Router();
 
 //middleware
@@ -10,6 +12,7 @@ router.use(function timeLog(req, res, next) {
   next();
 });
  */
+
 router.get('/', function(req, res) {
   res.send('home 3');
 });

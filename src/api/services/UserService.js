@@ -9,7 +9,7 @@ let usersTokens = [
     { "id": 0.08133849221774536, "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MC4wODEzMzg0OTIyMTc3NDUzNiwidXNlcm5hbWUiOiJJcmEiLCJpYXQiOjE2MTMyNzMxNTd9.19lq8gswkEPIxVehNvZOjYxDYUbQUSvVE6SCSpcwTL4" },
 ]
 
-const find = (username) => {
+const findByUsername = (username) => {
     return users.find((user) => {
         return user.username === username
     });
@@ -40,7 +40,7 @@ const remove = (id)=>{
 module.exports = {
     remove,
     storeToken,
-    find,
+    findByUsername,
     add,
     list,
     findToken
