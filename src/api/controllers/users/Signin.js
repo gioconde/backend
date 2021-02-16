@@ -9,7 +9,7 @@ const signin =(jwt)=> (req, res) => {
    // if (user.password !== password) return res.status(401).send("Senha inválida!")
 
     const token = jwt.sign({ id: user.id, username: user.username }, process.env.SECRET, {
-        //expiresIn: 10
+        //expiresIn: 300
     });
     UserService.storeToken(user, token)
     return res.json({ auth: true, token: token });
