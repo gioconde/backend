@@ -1,3 +1,4 @@
+const UserService = require('../../services/UserService')
 const remove = (req, res) => {
     const { id } = req.body
     if (!id) return res.send("Necessita 'id'")

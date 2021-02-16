@@ -1,3 +1,5 @@
+const UserService = require('../../services/UserService')
+
 const add = (req, res) => {
     const { username, password, confPassword } = req.body
     if (!username || !password || !confPassword) return res.send("Necessita 'username', 'password' e 'confPassword'")

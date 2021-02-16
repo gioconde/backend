@@ -1,5 +1,6 @@
+const UserService = require('../services/UserService')
 
-const middlewareAuth = (jwt) => (req, res, next) => {
+const middlewareAuth =(jwt)=> (req, res, next) => {
     if (!req.headers.authorization) return res.status(401).send("Necessita token de acesso!")
     const token = req.headers.authorization.replace('Bearer ', '');
 

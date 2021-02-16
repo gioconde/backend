@@ -1,6 +1,5 @@
-
-
-const signin = (req, res) => {
+const UserService = require('../../services/UserService')
+const signin =(jwt)=> (req, res) => {
     const { username, password } = req.body
 
     if (!username || !password) return res.status(403).send("Necessita credenciais!")
