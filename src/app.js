@@ -9,7 +9,6 @@ const port = 3000
 app.use(express.json())
 app.use('/', routesDefault)
 app.use('/users', routesAuth)
-app.use('/product', routesAuth)
 
 app.listen(port, () => {
   console.log(`CondeDev rodando em http://localhost:${port}`)
